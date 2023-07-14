@@ -1,5 +1,5 @@
 # api-git-clone
-An API in go with fiber that will clone any number of repositories you want in parrallel with goroutines. You need to make a post request with the following json:
+An API in go with fiber that will clone any number of git repositories you want in parrallel with goroutines. You need to make a post request with the following json:
 
 {
   "repositorios": [
