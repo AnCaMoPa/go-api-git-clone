@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,7 +16,7 @@ type Repositorios struct {
 	} `json:"repositorios"`
 }
 
-var path string = os.Getenv("PATH")
+const destiny string = "path in which you want to have your repositories"
 
 func GetName(url string) string {
 
@@ -28,21 +29,51 @@ func GetName(url string) string {
 	return splitfilename[0]
 }
 
-func DownloadRepository(url string) {
+func DownloadRepository(repos chan string) string {
 
-	name := GetName(url)
+	if len(repos) == 0 {
 
-	fmt.Println(name)
+		fmt.Println("No more Repositories to clone")
+		return ""
 
-	cmd := exec.Command("git", "clone", url)
-	cmd.Run()
+	} else {
 
-	cmd = exec.Command("mv", "./"+name, path)
-	cmd.Run()
+		url := <-repos
+
+		name := GetName(url)
+
+		/* fmt.Println(url) */
+
+		cmd := exec.Command("git", "clone", url)
+
+		if err := cmd.Run(); err != nil {
+
+			fmt.Println("Git Repository :", url, "Ko Result :", err.Error())
+
+		} else {
+			fmt.Println(destiny)
+			cmd = exec.Command("mv", "./"+name, destiny)
+
+			if err := cmd.Run(); err != nil {
+
+				fmt.Println("Git Repository :", url, "Ko Result :", err.Error())
+
+			}
+
+		}
+
+		time.Sleep(2 * time.Second)
+
+		go DownloadRepository(repos)
+	}
+
+	return ""
 
 }
 
 func HandleGitAllClone(c *fiber.Ctx) error {
+
+	routines, _ := strconv.Atoi(c.Params("routines"))
 
 	// get the Collection from the request body
 	jsonBody := new(Repositorios)
@@ -52,9 +83,17 @@ func HandleGitAllClone(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"bad input": err.Error()})
 	}
 
+	repos := make(chan string, len(jsonBody.Repositorios))
+
 	for _, repo := range jsonBody.Repositorios {
-		go DownloadRepository(repo.URL)
+		repos <- repo.URL
 	}
 
-	return c.Status(200).JSON(fiber.Map{"internal server error": "OK"})
+	/* 	wg.Add(routines)
+	 */
+	for i := 0; i < routines; i++ {
+		go DownloadRepository(repos)
+	}
+
+	return c.Status(200).JSON(fiber.Map{"Operation Result": "OK"})
 }

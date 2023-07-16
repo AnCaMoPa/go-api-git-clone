@@ -14,5 +14,5 @@ func SetupRoutes(app *fiber.App) {
 	gitclone := app.Group("/gitclone")
 
 	//Post endpoint
-	gitclone.Post("/", handlers.HandleGitAllClone)
+	gitclone.Post("/:routines", handlers.HandleGitAllClone)
 }
