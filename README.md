@@ -10,8 +10,9 @@ To work, you need to have ```git``` and ```go``` install in your computer.
 Once you have the app running, you need to make a post request with the following json:
 
 {
-  "goroutines": "1", //Number of operations you want in parrallel
+  "goroutines": "2", //Number of operations you want in parrallel
   "path": "./", //Path in which you cloned repositories will be
+  "time_out":"10s", //Max time the operations will be in executing before its get cancel
   "repositories": [ //List of the repositories you want to clone
       {
         "url" : "git@github.com:AnCaMoPa/go-api-git-clone.git"

@@ -13,9 +13,9 @@ import (
 )
 
 type Repositories struct {
-	Goroutines string `json:"goroutines"`
-	Path       string `json:"path"`
-	/* Timeout      string `json:"time out"` */
+	Goroutines   string `json:"goroutines"`
+	Path         string `json:"path"`
+	Timeout      string `json:"time_out"`
 	Repositories []struct {
 		URL string `json:"url"`
 	} `json:"repositories"`
@@ -32,7 +32,7 @@ func GetName(url string) string {
 	return splitfilename[0]
 }
 
-func DownloadRepository(repos chan string, path string, i int) {
+func DownloadRepository(repos chan string, path string, timeout time.Duration, i int) {
 
 	if len(repos) == 0 {
 
@@ -41,7 +41,7 @@ func DownloadRepository(repos chan string, path string, i int) {
 
 	} else {
 
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 
 		defer cancel()
 
@@ -62,7 +62,7 @@ func DownloadRepository(repos chan string, path string, i int) {
 
 		time.Sleep(5 * time.Second)
 
-		go DownloadRepository(repos, path, i)
+		go DownloadRepository(repos, path, timeout, i)
 	}
 }
 
@@ -78,7 +78,7 @@ func HandleGitAllClone(c *fiber.Ctx) error {
 
 	routines, _ := strconv.Atoi(jsonBody.Goroutines)
 
-	/* timeout, _ := time.ParseDuration(jsonBody.Timeout) */
+	timeout, _ := time.ParseDuration(jsonBody.Timeout)
 
 	path := jsonBody.Path
 
@@ -88,8 +88,10 @@ func HandleGitAllClone(c *fiber.Ctx) error {
 		repos <- repo.URL
 	}
 
+	fmt.Println(timeout)
+
 	for i := 0; i < routines; i++ {
-		go DownloadRepository(repos, path, i)
+		go DownloadRepository(repos, path, timeout, i)
 	}
 
 	return c.Status(200).JSON(fiber.Map{"Operation Result": "OK"})
