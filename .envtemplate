@@ -1,8 +1,4 @@
 //Remove the comments before using the templete as your .env .
 
 //PORT of the APP server
-PORT=""
-
-//PATH in which you would like to have your repositories
-PATH=""
-
+PORT="8080"
