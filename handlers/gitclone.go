@@ -88,8 +88,6 @@ func HandleGitAllClone(c *fiber.Ctx) error {
 		repos <- repo.URL
 	}
 
-	fmt.Println(timeout)
-
 	for i := 0; i < routines; i++ {
 		go DownloadRepository(repos, path, timeout, i)
 	}

@@ -9,6 +9,7 @@ To work, you need to have ```git``` and ```go``` install in your computer.
 ## JSON BODY STRUCTURE
 Once you have the app running, you need to make a post request with the following json:
 
+```json
 {
   "goroutines": "2", //Number of operations you want in parrallel
   "path": "./", //Path in which you cloned repositories will be
@@ -22,6 +23,7 @@ Once you have the app running, you need to make a post request with the followin
       }
     ]
 }
+```
 
 To test the API you cand use Postman or Thunder Client in Visual Studio Code to make the post request.
 
